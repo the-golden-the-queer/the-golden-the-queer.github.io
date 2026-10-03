@@ -1,0 +1,875 @@
+/* ==========================================
+   1. 全局與基礎樣式 (Global Styles)
+   ========================================== */
+:root {
+  --bg-color: #f7fafc;
+  --text-main: #000000;
+  --text-gray: #718096;
+  --primary-color: #3182ce;
+  --primary-hover: #2b6cb0;
+  --nav-height: 132px; /* 導覽列高度，滿版主視覺會扣掉這段 */
+  
+  /* 遊戲角色配色 */
+  --game-bg: #b0bec5;
+  --game-chat-overlay: rgba(245, 247, 248, 0.85);
+  --game-text-main: #37474f;
+  --game-text-gray: #546e7a;
+  --game-label-size: 11px;
+  --color-hui: #8da399;
+  --color-lin: #607d8b;
+  --color-white: #90a4ae;
+  --color-me: #556b2f;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.6;
+  color: var(--text-main);
+  background-color: var(--bg-color);
+}
+
+/* 按鈕與輸入框預設不繼承字體，統一套用 Apple 系統字 */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 導覽列 */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: var(--nav-height);
+  padding: 0.5rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-img {
+  height: 116px;
+  width: auto;
+  display: block;
+}
+
+.navbar nav a {
+  margin-left: 1.5rem;
+  color: #000000;
+  font-weight: 500;
+}
+
+.navbar nav a:hover,
+.navbar nav a.active {
+  color: var(--primary-hover);
+  font-weight: 700;
+}
+
+/* 容器 */
+.container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* 首頁滿版主視覺 */
+.hero-page-container {
+  width: 100%;
+  height: calc(100vh - var(--nav-height));
+  height: calc(100svh - var(--nav-height)); /* 手機瀏覽器網址列不會吃掉畫面 */
+  min-height: 420px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%; /* 讓雪山與湖面都留在畫面中 */
+  display: block;
+}
+
+@media (max-width: 640px) {
+  :root { --nav-height: 108px; }
+  .navbar { padding: 0.5rem 1rem; }
+  .logo-img { height: 92px; }
+  .navbar nav a { margin-left: 0.9rem; font-size: 0.9rem; }
+}
+
+/* 通用區塊卡片外框 */
+.section-block {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.section-block h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: #2d3748;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 0.5rem;
+}
+
+/* ==========================================
+   2. 手機模擬器情境遊戲樣式
+   ========================================== */
+.phone-wrapper-outer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+#phone-wrapper {
+  position: relative; /* 關鍵：鎖定所有彈窗與訊息在手機框內 */
+  width: 360px;
+  height: 680px;
+  background-color: var(--game-bg, #f5f5f7); /* 保留原本背景變數 */
+  border-radius: 40px;
+  border: 12px solid #2d3748;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* 關鍵：舊訊息向上跑出邊界時自動裁切 */
+  box-sizing: border-box;
+  transition: background-color 0.5s ease;
+}
+
+/* 綠衣巨大狗狗登場時的情境背景轉換 */
+#phone-wrapper.green-dog-mode {
+  background-color: #f0fdf4;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* ==========================================
+   對話框與訊息區域（對齊原本對話框樣式）
+   ========================================== */
+#chat-window {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+
+  /* 隱藏原生捲軸，維持簡潔視覺 */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#chat-window::-webkit-scrollbar {
+  display: none;
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+  animation: messageSlideIn 0.25s ease-out;
+}
+
+.message-wrapper.left {
+  align-self: flex-start;
+}
+
+.message-wrapper.green_dog {
+  align-self: flex-start;
+}
+
+.message-wrapper.right {
+  align-self: flex-end;
+}
+
+.message-wrapper.system {
+  align-self: center;
+  max-width: 90%;
+  margin: 10px 0;
+}
+
+.system-text {
+  font-size: 0.8rem;
+  color: #718096;
+  background: rgba(226, 232, 240, 0.7);
+  padding: 6px 12px;
+  border-radius: 12px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.message-wrapper.left .bubble {
+  background-color: #ffffff;
+  color: var(--game-text-main, #1a202c);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* 綠衣巨大狗狗特色對話框樣式 */
+.message-wrapper.green_dog .bubble {
+  background-color: #2e7d32;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.25);
+  font-weight: 500;
+}
+
+.message-wrapper.right .bubble {
+  background-color: var(--color-lin, #007aff); /* 保留原本的主色調 */
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+#options-container {
+  padding: 12px 16px 20px 16px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#options-container button {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: #f7fafc;
+  border: 1px solid #cbd5e0;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#options-container button:hover {
+  background-color: var(--color-lin, #007aff);
+  color: #ffffff;
+  border-color: var(--color-lin, #007aff);
+}
+
+.typing {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  padding: 4px 8px;
+}
+
+/* ==========================================
+   手機內部鋪墊與 iOS Modal (嚴格限制於手機框內)
+   ========================================== */
+.paving-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.paving-card {
+  color: #f8fafc;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.paving-content p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 90;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.ios-alert-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  width: 250px;
+  padding-top: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  overflow: hidden;
+  animation: iosPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ios-alert-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 4px;
+  padding: 0 12px;
+}
+
+.ios-alert-card p {
+  font-size: 0.8rem;
+  color: #3c3c43;
+  margin-bottom: 12px;
+  padding: 0 12px;
+  line-height: 1.4;
+}
+
+.ios-field-group {
+  padding: 0 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ios-field-group label {
+  font-size: 0.72rem;
+  color: #8e8e93;
+  text-align: left;
+}
+
+.ios-input {
+  width: 100%;
+  padding: 6px 8px;
+  background: rgba(239, 239, 244, 0.8);
+  border: 0.5px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.ios-input:focus {
+  border-color: var(--color-lin, #007aff);
+  background: #ffffff;
+}
+
+.ios-btn-group {
+  border-top: 0.5px solid rgba(60, 60, 67, 0.2);
+  display: flex;
+}
+
+.ios-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 10px;
+  font-size: 0.9rem;
+  color: var(--color-lin, #007aff);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ios-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.paving-card .ios-btn.primary {
+  background: var(--color-lin, #007aff);
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+@keyframes iosPop {
+  from { transform: scale(1.12); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes messageSlideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* ==========================================
+   店員（灰色）與機器（黑色）對話框
+   ========================================== */
+.message-wrapper.clerk,
+.message-wrapper.machine {
+  align-self: flex-start;
+}
+
+.message-wrapper.clerk .bubble {
+  background-color: #e2e8f0;
+  color: #2d3748;
+  border-bottom-left-radius: 4px;
+}
+
+.message-wrapper.machine .bubble {
+  background-color: #1a202c;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, monospace;
+}
+
+/* 店員、機器對話框上方的小字標籤 */
+.speaker-label {
+  font-size: 0.7rem;
+  color: #718096;
+  margin: 0 0 3px 6px;
+}
+
+/* ==========================================
+   全黑背景模式（S/T/U 結局之後）
+   ========================================== */
+#phone-wrapper.dark-mode,
+#phone-wrapper.dark-mode.green-dog-mode {
+  background-color: #000000;
+}
+
+#phone-wrapper.dark-mode #options-container {
+  background: #000000;
+  border-top-color: #1f1f1f;
+}
+
+#phone-wrapper.dark-mode #options-container button {
+  background-color: #141414;
+  border-color: #333333;
+  color: #e2e8f0;
+}
+
+#phone-wrapper.dark-mode #options-container button:hover {
+  background-color: var(--color-lin, #007aff);
+  border-color: var(--color-lin, #007aff);
+  color: #ffffff;
+}
+
+#phone-wrapper.dark-mode .system-text {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e0;
+}
+
+/* ==========================================
+   聊天中的網站縮圖（連結預覽卡片）
+   ========================================== */
+.message-wrapper.right .bubble.link-card-bubble {
+  padding: 6px;
+}
+
+.link-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 8px;
+  color: #1a202c;
+}
+
+.link-card-thumb {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: #2e7d32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.link-card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.link-card-site {
+  font-size: 0.68rem;
+  color: #718096;
+  margin-top: 2px;
+}
+
+/* ==========================================
+   手機內的無浪漫網誌
+   ========================================== */
+.blog-overlay {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  z-index: 80;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  animation: fadeIn 0.35s ease-out;
+}
+
+.blog-overlay::-webkit-scrollbar {
+  display: none;
+}
+
+.blog-urlbar {
+  position: sticky;
+  top: 0;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.blog-article {
+  padding: 18px 18px 28px;
+  color: #1a202c;
+}
+
+.blog-article h2 {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin: 0 0 14px;
+  color: #2e7d32;
+}
+
+.blog-article h3 {
+  font-size: 0.92rem;
+  margin: 18px 0 6px;
+}
+
+.blog-article p {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  margin: 0;
+  color: #334155;
+}
+
+.blog-end-btn {
+  display: none;
+  width: 100%;
+  margin-top: 24px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 20px;
+  background: #2e7d32;
+  color: #ffffff;
+  font-size: 0.88rem;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.blog-end-btn.show {
+  display: block;
+}
+
+/* ------------------------------------------
+   情境遊戲頁：手機模擬器與瀏覽器視窗同高，四周黑底
+   ------------------------------------------ */
+html:has(body.game-page),
+body.game-page {
+  height: 100%;
+  background-color: #000000;
+  overflow: hidden;
+}
+
+body.game-page .phone-wrapper-outer {
+  height: 100vh;
+  height: 100svh;
+  padding: 0;
+}
+
+body.game-page #phone-wrapper {
+  height: 100vh;
+  height: 100svh;
+  /* 依原本 360×680 的比例，由視窗高度推算寬度 */
+  width: min(100vw, calc(100svh * 360 / 680));
+  box-shadow: none;
+}
+
+/* 手機上：模擬器就是整個螢幕，不需要外框 */
+@media (max-width: 600px) {
+  body.game-page #phone-wrapper {
+    width: 100vw;
+    border: none;
+    border-radius: 0;
+  }
+}
+
+/* ==========================================
+   3. 部落格文章頁面樣式
+   ========================================== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: #ffffff;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-tag {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  flex-grow: 1;
+  margin-bottom: 1rem;
+}
+
+.read-more {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* RSS 區塊 */
+.rss-section {
+  margin-top: 2rem;
+}
+
+.rss-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.input-group {
+  display: flex;
+  max-width: 500px;
+}
+
+.input-group input {
+  flex-grow: 1;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px 0 0 6px;
+  outline: none;
+}
+
+.input-group button {
+  padding: 0.6rem 1rem;
+  background-color: #319795;
+  color: white;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+}
+
+.input-group button:hover {
+  background-color: #2c7a7b;
+}
+
+.secondary-btn {
+  align-self: flex-start;
+  padding: 0.6rem 1rem;
+  background-color: #edf2f7;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background-color: #e2e8f0;
+}
+
+.status-msg {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #38a169;
+}
+
+/* ==========================================
+   4. 個人簡介與關於狗勾頁面樣式
+   ========================================= */
+.profile-card {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.profile-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 3px solid #ffffff;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex-grow: 1;
+}
+
+.profile-info h3 {
+  font-size: 1.5rem;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+}
+
+.profile-bio {
+  color: #4a5568;
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+}
+
+/* IG 追蹤按鈕 */
+.instagram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.25);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.instagram-btn:hover {
+  text-decoration: none;
+  opacity: 0.95;
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.instagram-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.dog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.dog-card {
+  background: #f7fafc;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #edf2f7;
+}
+
+.dog-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.dog-info {
+  padding: 1rem;
+}
+
+.dog-info h3 {
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+.dog-info p {
+  font-size: 0.9rem;
+  color: #718096;
+}
+
+@media (max-width: 640px) {
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+}
+
+/* 頁尾 */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: #a0aec0;
+  font-size: 0.85rem;
+}

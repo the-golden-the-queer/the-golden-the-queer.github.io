@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文章專區 | 性別狗勾吠叫中！</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="alternate" type="application/rss+xml" title="RSS 訂閱" href="feed.xml" />
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="index.html" class="logo-link">
+      <img src="images/my-logo.png" alt="網站 Logo" class="logo-img">
+    </a>
+    <nav>
+      <a href="game.html">情境遊戲</a>
+      <a href="blog.html" class="active">文章專區</a>
+      <a href="about.html">關於狗勾</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="section-block">
+      <h2>網誌文章</h2>
+      <div class="card-grid">
+        <article class="card">
+          <div class="card-tag">科學與文學</div>
+          <h3>植物分類學中的敘事詩意</h3>
+          <p>當我們為植物命名時，我們不僅是在進行生物學分類，更是在用符號學寫下人類對自然界的理解與想像...</p>
+          <a href="posts/plant-narrative.html" class="read-more">閱讀全文 →</a>
+        </article>
+
+        <article class="card">
+          <div class="card-tag">程式設計</div>
+          <h3>用 JavaScript 打造開放式文字冒險遊戲</h3>
+          <p>如何設計非線性的狀態選擇樹？本文分享如何透過單純的靜態網頁架構實現豐富的情境選擇與結果互動...</p>
+          <a href="posts/js-text-game.html" class="read-more">閱讀全文 →</a>
+        </article>
+
+        <article class="card">
+          <div class="card-tag">數位生活</div>
+          <h3>在資訊過載時代重拾 RSS 訂閱主導權</h3>
+          <p>不再被演算法牽著鼻子走，打造屬於自己的客製化資訊流與知識庫整合方案...</p>
+          <a href="posts/rss-guide.html" class="read-more">閱讀全文 →</a>
+        </article>
+      </div>
+    </div>
+
+    <div id="rss" class="section-block rss-section">
+      <h2>訂閱 RSS 推播更新</h2>
+      <p>透過 RSS 閱讀器訂閱，第一時間接收最新文章與遊戲更新通知！</p>
+      
+      <div class="rss-actions">
+        <div class="input-group">
+          <input type="text" id="rss-url" value="https://your-domain.com/feed.xml" readonly />
+          <button onclick="copyRSSUrl()">複製 RSS 網址</button>
+        </div>
+        <button id="notify-btn" class="secondary-btn" onclick="requestNotification()">開啟瀏覽器更新推播通知</button>
+      </div>
+      <p id="rss-status" class="status-msg"></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 My Static Website. Powered by HTML, CSS & JavaScript.</p>
+  </footer>
+
+  <script>
+    function copyRSSUrl() {
+      const rssInput = document.getElementById("rss-url");
+      rssInput.select();
+      rssInput.setSelectionRange(0, 99999);
+
+      navigator.clipboard.writeText(rssInput.value)
+        .then(() => {
+          showStatus("RSS 網址已複製到剪貼簿！");
+        })
+        .catch(() => {
+          showStatus("複製失敗，請手動複製網址。");
+        });
+    }
+
+    function requestNotification() {
+      if (!("Notification" in window)) {
+        showStatus("您的瀏覽器不支援 Web Notification 功能。");
+        return;
+      }
+
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          showStatus("已成功開啟瀏覽器通知！");
+          new Notification("感謝訂閱！", {
+            body: "當有最新文章或遊戲更新時，您將收到這類推播通知。"
+          });
+        } else {
+          showStatus("推播通知權限已被拒絕。");
+        }
+      });
+    }
+
+    function showStatus(message) {
+      const statusEl = document.getElementById("rss-status");
+      if (!statusEl) return;
+      statusEl.innerText = message;
+      setTimeout(() => {
+        statusEl.innerText = "";
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
