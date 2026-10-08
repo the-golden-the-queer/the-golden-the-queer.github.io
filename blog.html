@@ -11,7 +11,7 @@
 
   <header class="navbar">
     <a href="index.html" class="logo-link">
-      <img src="images/my-logo.png" alt="網站 Logo" class="logo-img">
+      <img src="images/性別狗勾_logo.png" alt="性別狗勾吠叫中！" class="logo-img">
     </a>
     <nav>
       <a href="game.html" target="_blank" rel="noopener noreferrer">情境遊戲</a>
@@ -23,32 +23,14 @@
   <main class="container">
     <div class="section-block">
       <h2>網誌文章</h2>
-      <div class="card-grid">
-        <article class="card">
-          <div class="card-tag">科學與文學</div>
-          <h3>植物分類學中的敘事詩意</h3>
-          <p>當我們為植物命名時，我們不僅是在進行生物學分類，更是在用符號學寫下人類對自然界的理解與想像...</p>
-          <a href="posts/plant-narrative.html" class="read-more">閱讀全文 →</a>
-        </article>
-
-        <article class="card">
-          <div class="card-tag">程式設計</div>
-          <h3>用 JavaScript 打造開放式文字冒險遊戲</h3>
-          <p>如何設計非線性的狀態選擇樹？本文分享如何透過單純的靜態網頁架構實現豐富的情境選擇與結果互動...</p>
-          <a href="posts/js-text-game.html" class="read-more">閱讀全文 →</a>
-        </article>
-
-        <article class="card">
-          <div class="card-tag">數位生活</div>
-          <h3>在資訊過載時代重拾 RSS 訂閱主導權</h3>
-          <p>不再被演算法牽著鼻子走，打造屬於自己的客製化資訊流與知識庫整合方案...</p>
-          <a href="posts/rss-guide.html" class="read-more">閱讀全文 →</a>
-        </article>
+      <!-- 文章卡片由下方的 JavaScript 自動從 posts 資料夾產生 -->
+      <div class="card-grid" id="post-list">
+        <p class="status-msg">文章載入中…</p>
       </div>
     </div>
 
     <div id="rss" class="section-block rss-section">
-      <h2>訂閱 RSS 推播更新</h2>
+      <h2>訂閱 RSS 推播更新（建置中，請勿使用）</h2>
       <p>透過 RSS 閱讀器訂閱，第一時間接收最新文章與遊戲更新通知！</p>
       
       <div class="rss-actions">
@@ -67,6 +49,106 @@
   </footer>
 
   <script>
+    /* ===== 網誌文章自動列表設定 ===== */
+    const POSTS_CONFIG = {
+      owner: "the-golden-the-queer",                 // GitHub 帳號
+      repo: "the-golden-the-queer.github.io",        // 存放網站的 repo 名稱
+      folder: "posts",                               // 文章資料夾
+      newestFirst: true,                             // true：檔名排序越後面的越先顯示
+      excerptLength: 80                              // 預覽內文字數
+    };
+
+    // 取得 posts 資料夾裡的所有 .html 檔名
+    async function listPostFiles() {
+      const { owner, repo, folder, newestFirst } = POSTS_CONFIG;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`);
+        if (!res.ok) throw new Error("GitHub API " + res.status);
+        const items = await res.json();
+        const names = items
+          .filter(item => item.type === "file" && item.name.endsWith(".html"))
+          .map(item => item.name)
+          .sort((a, b) => a.localeCompare(b, "zh-Hant", { numeric: true }));
+        return newestFirst ? names.reverse() : names;
+      } catch (err) {
+        // 備援：若 GitHub API 無法使用，改讀 posts/posts.json（內容為檔名陣列，依顯示順序排列）
+        const res = await fetch(`${folder}/posts.json`);
+        if (!res.ok) throw err;
+        return await res.json();
+      }
+    }
+
+    // 讀取單篇文章，抓出標題、分類與預覽內文
+    async function loadPostPreview(fileName) {
+      const url = `${POSTS_CONFIG.folder}/${fileName}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+
+      const title = (doc.querySelector("h1")?.textContent || doc.title || fileName).trim();
+      const tag = doc.querySelector('meta[name="category"]')?.content?.trim() || "";
+
+      let excerpt = doc.querySelector('meta[name="description"]')?.content?.trim() || "";
+      if (!excerpt) {
+        const scope = doc.querySelector("article") || doc.querySelector("main") || doc.body;
+        const firstP = [...scope.querySelectorAll("p")].find(p => p.textContent.trim());
+        excerpt = firstP ? firstP.textContent.trim().replace(/\s+/g, " ") : "";
+      }
+      if (excerpt.length > POSTS_CONFIG.excerptLength) {
+        excerpt = excerpt.slice(0, POSTS_CONFIG.excerptLength) + "...";
+      }
+      return { url, title, tag, excerpt };
+    }
+
+    // 產生文章卡片
+    function createPostCard(post) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      if (post.tag) {
+        const tagEl = document.createElement("div");
+        tagEl.className = "card-tag";
+        tagEl.textContent = post.tag;
+        card.appendChild(tagEl);
+      }
+
+      const h3 = document.createElement("h3");
+      h3.textContent = post.title;
+      card.appendChild(h3);
+
+      const p = document.createElement("p");
+      p.textContent = post.excerpt;
+      card.appendChild(p);
+
+      const link = document.createElement("a");
+      link.href = post.url;
+      link.className = "read-more";
+      link.textContent = "閱讀全文 →";
+      card.appendChild(link);
+
+      return card;
+    }
+
+    async function renderPostList() {
+      const listEl = document.getElementById("post-list");
+      try {
+        const files = await listPostFiles();
+        const posts = (await Promise.all(files.map(loadPostPreview))).filter(Boolean);
+        listEl.innerHTML = "";
+        if (posts.length === 0) {
+          listEl.innerHTML = '<p class="status-msg">目前還沒有文章喔！</p>';
+          return;
+        }
+        posts.forEach(post => listEl.appendChild(createPostCard(post)));
+      } catch (err) {
+        console.error(err);
+        listEl.innerHTML = '<p class="status-msg">文章列表載入失敗，請稍後再試。</p>';
+      }
+    }
+
+    renderPostList();
+
+    /* ===== RSS 相關功能 ===== */
     function copyRSSUrl() {
       const rssInput = document.getElementById("rss-url");
       rssInput.select();
