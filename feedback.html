@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>聯絡狗勾 | 性別狗勾吠叫中！</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="alternate" type="application/rss+xml" title="RSS 訂閱" href="feed.xml" />
+  <style>
+    .feedback-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .feedback-intro {
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+    .privacy-note {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      padding: 0.75rem 1rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid rgba(128, 128, 128, 0.5);
+      background: rgba(128, 128, 128, 0.08);
+      border-radius: 0 8px 8px 0;
+    }
+    .form-field {
+      margin-bottom: 1.4rem;
+    }
+    .form-field label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
+    }
+    .form-field .optional,
+    .form-field .required {
+      font-weight: normal;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-left: 0.3rem;
+    }
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.7rem 0.85rem;
+      font: inherit;
+      color: inherit;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(128, 128, 128, 0.45);
+      border-radius: 8px;
+    }
+    .form-field textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      outline: 2px solid currentColor;
+      outline-offset: 1px;
+    }
+    .form-field .hint {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-top: 0.35rem;
+    }
+    /* 防垃圾訊息用的隱藏欄位：真人看不到，機器人會去填 */
+    .hp-field {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .submit-btn {
+      font: inherit;
+      font-weight: bold;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .form-error {
+      margin-top: 1rem;
+      color: #c0392b;
+    }
+    .thank-you {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .thank-you.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="index.html" class="logo-link">
+      <img src="images/性別狗勾_logo.png" alt="性別狗勾吠叫中！" class="logo-img">
+    </a>
+    <nav>
+      <a href="game.html" target="_blank" rel="noopener noreferrer">情境遊戲</a>
+      <a href="blog.html">文章專區</a>
+      <a href="about.html">關於狗勾</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="section-block feedback-wrap">
+      <h2>聯絡狗勾</h2>
+
+      <div id="feedback-area">
+        <p class="feedback-intro">對遊戲或文章有任何想法、建議，或是想找狗勾合作，都歡迎在這裡留言給我！</p>
+
+        <p class="privacy-note">🔒 你的意見只有狗勾看得到，不會公開；不想留名可以直接匿名送出。</p>
+
+        <form id="feedback-form" novalidate>
+          <div class="form-field">
+            <label for="fb-name">稱呼<span class="optional">（選填）</span></label>
+            <input type="text" id="fb-name" name="name" maxlength="100" autocomplete="nickname" placeholder="不填就是匿名，狗勾只會知道你是人類" />
+          </div>
+
+          <div class="form-field">
+            <label for="fb-email">Email<span class="optional">（選填）</span></label>
+            <input type="email" id="fb-email" name="email" maxlength="200" autocomplete="email" placeholder="you@example.com" />
+            <p class="hint">希望收到狗勾回覆的話再填就好</p>
+          </div>
+
+          <div class="form-field">
+            <label for="fb-type">類型</label>
+            <select id="fb-type" name="type">
+              <option value="遊戲回饋">遊戲回饋</option>
+              <option value="文章回饋">文章回饋</option>
+              <option value="合作邀約">合作邀約</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="fb-message">內容<span class="required">（必填）</span></label>
+            <textarea id="fb-message" name="message" maxlength="5000" required placeholder="想對狗勾說什麼呢？"></textarea>
+          </div>
+
+          <!-- 防垃圾訊息：真人看不到這個欄位，請勿移除 -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="fb-website">網站</label>
+            <input type="text" id="fb-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="submit-btn" id="fb-submit">送出</button>
+          <p class="form-error" id="fb-error" role="alert"></p>
+        </form>
+      </div>
+
+      <p class="thank-you" id="thank-you" role="status">感謝你的回饋！汪！</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 性別狗勾吠叫中！ Powered by HTML, CSS & JavaScript.</p>
+  </footer>
+
+  <script>
+    // ⬇️ 部署 Apps Script 後，把「網頁應用程式網址」貼在這裡（以 /exec 結尾）
+    const FEEDBACK_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQnxtrP9EjNiyiHMg1XTB3fbF3ZaTudgbPWgn1zWpgRorGBS8TNbL8gBdGKsECeJhW/exec";
+
+    const form = document.getElementById("feedback-form");
+    const submitBtn = document.getElementById("fb-submit");
+    const errorEl = document.getElementById("fb-error");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorEl.textContent = "";
+
+      const message = form.message.value.trim();
+      if (!message) {
+        errorEl.textContent = "請輸入內容再送出喔！";
+        form.message.focus();
+        return;
+      }
+
+      const email = form.email.value.trim();
+      if (email && !form.email.checkValidity()) {
+        errorEl.textContent = "Email 格式好像不太對，請再檢查一下（或留空也可以）。";
+        form.email.focus();
+        return;
+      }
+
+      if (!FEEDBACK_SCRIPT_URL.startsWith("https://")) {
+        errorEl.textContent = "表單尚未設定完成，暫時無法送出。";
+        return;
+      }
+
+      const data = new URLSearchParams({
+        name: form.name.value.trim(),
+        email: email,
+        type: form.type.value,
+        message: message,
+        website: form.website.value,   // 防垃圾訊息欄位
+        page: document.referrer || location.href
+      });
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送出中…";
+
+      try {
+        const res = await fetch(FEEDBACK_SCRIPT_URL, { method: "POST", body: data });
+        const result = await res.json();
+        if (result.result !== "ok") throw new Error(result.message || "送出失敗");
+
+        document.getElementById("feedback-area").style.display = "none";
+        document.getElementById("thank-you").classList.add("show");
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = "送出失敗了，請稍後再試一次 🐾";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "送出";
+      }
+    });
+  </script>
+</body>
+</html>
