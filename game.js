@@ -710,8 +710,15 @@ const story = {
     text: "好痛，輕一點——",
     options: [
       { text: "快好了，沒事，忍耐一下", next: "F11_comfort" },
-      { text: "痛痛跟細菌都飛走囉", next: "F11_comfort" }
+      { text: "痛痛跟細菌都飛走囉", setPainAway: true, next: "F11_painaway_gd" }
     ]
+  },
+  F11_painaway_gd: {
+    type: "green_dog",
+    text: "你在說什麼啦",
+    autoSendGreenDog: ["他又不是七歲小孩"],
+    delayNext: 1,
+    next: "F11_comfort"
   },
   F11_comfort: {
     text: "啊啊——",
@@ -753,8 +760,15 @@ const story = {
     text: "好痛，輕一點——",
     options: [
       { text: "快好了，沒事，忍耐一下", next: "F21_comfort" },
-      { text: "痛痛跟細菌都飛走囉", next: "F21_comfort" }
+      { text: "痛痛跟細菌都飛走囉", setPainAway: true, next: "F21_painaway_gd" }
     ]
+  },
+  F21_painaway_gd: {
+    type: "green_dog",
+    text: "你在說什麼啦",
+    autoSendGreenDog: ["他又不是七歲小孩"],
+    delayNext: 1,
+    next: "F21_comfort"
   },
   F21_comfort: {
     text: "啊啊——",
@@ -823,8 +837,41 @@ const story = {
     text: "很好吃！你比我想的會做飯欸",
     delayStart: 1000,
     options: [
-      { text: "好開心喔", next: "call_name_event" },
-      { text: "（對他微笑）", next: "call_name_event" }
+      { text: "好開心喔", next: "after_pasta_branch" },
+      { text: "（對他微笑）", next: "after_pasta_branch" }
+    ]
+  },
+
+  // 有選「痛痛跟細菌都飛走囉」→ 抱抱路線；否則 → 原本的爭執路線
+  after_pasta_branch: {
+    type: "branch",
+    branch: () => saidPainAway ? "hug_ask" : "call_name_event"
+  },
+
+  // ================= 抱抱路線 =================
+  hug_ask: {
+    text: "可以抱我嗎？",
+    options: [
+      { text: "好啊", autoSend: ["好啊", "（抱抱）"], next: "hug_dinner_sys" },
+      { text: "吃完再抱啦", next: "hug_later_1" }
+    ]
+  },
+  hug_later_1: {
+    text: "你搪塞我",
+    delayNext: 1000,
+    next: "hug_later_2"
+  },
+  hug_later_2: {
+    text: "你好不浪漫",
+    options: [
+      { text: "好啦現在抱", autoSend: ["好啦現在抱", "（抱抱）"], next: "hug_dinner_sys" }
+    ]
+  },
+  hug_dinner_sys: {
+    type: "system",
+    text: "你們愉快地享用了晚餐。這樣的夜晚，之後還會度過很多次。",
+    options: [
+      { text: "（進入下一階段）", clearChat: true, silent: true, next: "anniv_intro_1" }
     ]
   },
 
@@ -1495,8 +1542,14 @@ const story = {
   rest_N2_reply_4: {
     text: "你覺得你要是主動的這方，對嗎？",
     options: [
-      { text: "對，但這不是重點", next: "rest_N2_reply_5" },
+      { text: "對，但這不是重點", next: "rest_N2_reply_4a" },
       { text: "其實我還滿喜歡當被動的那方", next: "rest_N2_reply_5" }
+    ]
+  },
+  rest_N2_reply_4a: {
+    text: "好啊，我也想嘗試被照顧看看",
+    options: [
+      { text: "其實……", next: "rest_food_sys" }
     ]
   },
   rest_N2_reply_5: {
@@ -1599,8 +1652,8 @@ const story = {
     text: "不適合當伴侶，還是不適合當我的伴侶？",
     options: [
       { text: "不適合當伴侶", next: "rest_Q_reply_1" },
-      { text: "這是同一件事", next: "rest_Q_reply_1" },
-      { text: "不適合當你的伴侶", next: "rest_R_reply_1" }
+      { text: "不適合當你的伴侶", next: "rest_R_reply_1" },
+      { text: "這是同一件事", next: "rest_Q_reply_1" }      
     ]
   },
 
@@ -1673,7 +1726,7 @@ const story = {
   // ================= 結局 S / T / U =================
   rest_S_end: {
     type: "system",
-    text: "你們討論了一陣子，然後進入沉默。你們後來各自吃著各自的餐點，也各自結帳。他把花帶回去了。",
+    text: "你們討論了一陣子，然後陷入沉默。你們後來各自吃著各自的餐點，也各自結帳。他把花帶回去了。",
     setEnding: "S",
     options: [
       { text: "（進入下一階段）", clearChat: true, silent: true, next: "aro_monologue" }
@@ -1681,7 +1734,7 @@ const story = {
   },
   rest_T_end: {
     type: "system",
-    text: "你們討論了一陣子，然後進入沉默。只是各自吃著各自的餐點，也各自結帳。他把花帶回去了。",
+    text: "你們討論了一陣子，然後陷入沉默。只是各自吃著各自的餐點，也各自結帳。他把花帶回去了。",
     setEnding: "T",
     options: [
       { text: "（進入下一階段）", clearChat: true, silent: true, next: "aro_monologue" }
@@ -1702,7 +1755,7 @@ const story = {
     darkMode: true,
     seq: ["嘿", "螢幕前的那位", "可以不用再假裝是我了啦", { pause: 3000 }, "跟你說", "後來啊——"],
     options: [
-      { text: "嗯", silent: true, next: "aro_after_branch" }
+      { text: "嗯？", silent: true, next: "aro_after_branch" }
     ]
   },
   // 依 S / T / U 結局分流
@@ -1833,6 +1886,7 @@ let chatWindow, optionsContainer, modalOverlay, modalContent;
 let currentCareRoute = "Fa"; // 記錄擦藥路線
 let payRoute = "";
 let endingRoute = ""; // 記錄紀念日晚餐結局（S / T / U） // 記錄結帳路線（"M" = 什麼都不做，讓他付）
+let saidPainAway = false; // 擦藥時是否選了「痛痛跟細菌都飛走囉」
 let isChatting = true; // 見面前（傳訊息階段）才顯示「對方正在輸入...」
 
 function showWaiting() {
@@ -2052,8 +2106,48 @@ function checkBlogBottom() {
 
 function closeBlog() {
   document.getElementById('blog-overlay').style.display = 'none';
-  // 之後若要接續劇情，新增一個名為 after_blog 的節點即可
-  if (story.after_blog) displayNode('after_blog');
+  showEndMenu();
+}
+
+// ================= 看完網誌後的全黑結尾頁 =================
+function showEndPanel(panelId) {
+  const overlay = document.getElementById('end-overlay');
+  overlay.querySelectorAll('.end-panel').forEach(p => {
+    p.style.display = (p.id === panelId) ? 'flex' : 'none';
+  });
+  overlay.style.display = 'flex';
+  overlay.scrollTop = 0;
+}
+
+function showEndMenu() {
+  showEndPanel('end-menu');
+}
+
+// 「再看一下狗狗在看什麼」：回到網誌，看完後一樣回到結尾選單
+function reopenBlog() {
+  document.getElementById('end-overlay').style.display = 'none';
+  openBlog();
+}
+
+// 「看其他文章」：先跳出確認視窗
+function confirmLeave() {
+  modalContent.innerHTML = `
+    <h3>提醒</h3>
+    <p>將離開遊戲畫面，是否確定跳轉？</p>
+    <div class="ios-btn-group">
+      <button class="ios-btn ios-btn-divider" onclick="cancelLeave()">否</button>
+      <button class="ios-btn" onclick="leaveToBlog()">是</button>
+    </div>
+  `;
+  modalOverlay.style.display = 'flex';
+}
+
+function leaveToBlog() {
+  window.location.href = 'https://the-golden-the-queer.github.io/blog.html';
+}
+
+function cancelLeave() {
+  modalOverlay.style.display = 'none';
 }
 
 function renderOptions(options) {
@@ -2072,6 +2166,9 @@ function renderOptions(options) {
       }
       if (opt.setRoute) {
         currentCareRoute = opt.setRoute;
+      }
+      if (opt.setPainAway) {
+        saidPainAway = true; // 選過「痛痛跟細菌都飛走囉」→ 之後走抱抱路線
       }
 
       if (opt.openBlog) {
@@ -2178,6 +2275,8 @@ function loginGame() {
   isChatting = true; // 從頭開始時回到傳訊息階段
   payRoute = "";
   endingRoute = "";
+  saidPainAway = false;
+  currentCareRoute = "Fa";
   document.getElementById('phone-wrapper').classList.remove('dark-mode');
   displayNode('main_start');
 }

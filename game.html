@@ -42,8 +42,39 @@
             <h3>7. 知情同意是什麼</h3>
             <p>知情同意是指在充分了解相關資訊的前提下，自主且自願地同意某件事。放在親密關係中，代表雙方都清楚知道這段關係的性質、界線與可能帶來的影響，並在沒有壓力、欺瞞或威脅的情況下做出選擇。同意應該是明確的，而且可以隨時撤回，過去的同意不代表永遠同意。無論是無浪漫者的關係或任何關係，知情同意都是彼此尊重的基礎，也能確保雙方的期待不是建立在誤會之上。</p>
 
-            <button id="blog-end-btn" class="blog-end-btn" onclick="closeBlog()">我是按鈕，按我</button>
+            <button id="blog-end-btn" class="blog-end-btn" onclick="closeBlog()">看完了</button>
           </article>
+        </div>
+
+        <!-- 看完網誌後的全黑結尾頁 -->
+        <div id="end-overlay" class="end-overlay" style="display: none;">
+          <!-- 主選單 -->
+          <div id="end-menu" class="end-panel">
+            <button class="end-btn" onclick="reopenBlog()">再看一下狗狗在看什麼</button>
+            <button class="end-btn" onclick="confirmLeave()">看其他文章</button>
+            <button class="end-btn" onclick="showEndPanel('end-resources')">其他資源</button>
+            <button class="end-btn" onclick="showEndPanel('end-credits')">製作團隊</button>
+          </div>
+
+          <!-- 其他資源 -->
+          <div id="end-resources" class="end-panel" style="display: none;">
+            <p class="end-text">接洽聯繫中</p>
+            <button class="end-btn" onclick="showEndMenu()">回到選單</button>
+          </div>
+
+          <!-- 製作團隊 -->
+          <div id="end-credits" class="end-panel" style="display: none;">
+            <div class="credits">
+              <p>角色設計｜硯宇（黃怡倫）<br>劇情創作｜硯宇（黃怡倫）<br>程式設計｜硯宇（黃怡倫）</p>
+              <h4>靈感啟發</h4>
+              <p>It's Nicky Case!<br>台灣無浪漫小組</p>
+              <h4>特別感謝</h4>
+              <p>教育部青年發展署 青年百億海外圓夢基金計畫<br>國立高雄師範大學 性別教育研究所</p>
+              <p><a class="credits-link" href="https://the-golden-the-queer.github.io/feedback.html" target="_blank" rel="noopener">回饋建議請點此</a><br></p>
+              <p class="credits-note">未經同意，禁止任何形式之轉載或搬運。</p>
+            </div>
+            <button class="end-btn" onclick="showEndMenu()">回到選單</button>
+          </div>
         </div>
 
         <!-- 手機內部全版面鋪墊 -->
